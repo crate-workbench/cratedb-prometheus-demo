@@ -1,0 +1,20 @@
+version: "3"
+
+services:
+  cratedb:
+    image: "crate"
+    ports:
+      - "4200:4200"
+      - "5432:5432"
+  prometheus:
+    image: "prom/prometheus"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+  cratedb-prometheus-adapter:
+    image: "ghcr.io/crate/cratedb-prometheus-adapter"
+    volumes:
+      - ./cratedb-prometheus-adapter.yml:/etc/cratedb-prometheus-adapter/config.yml
+    ports:
+      - "9268:9268"
