@@ -6,6 +6,13 @@ services:
     ports:
       - "4200:4200"
       - "5432:5432"
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:4200"]
+      start_period: 3s
+      interval: 0.5s
+      retries: 30
+      timeout: 30s
+
   prometheus:
     image: "prom/prometheus"
     volumes:
@@ -18,3 +25,11 @@ services:
       - ./cratedb-prometheus-adapter.yml:/etc/cratedb-prometheus-adapter/config.yml
     ports:
       - "9268:9268"
+  provision_database:
+    image: "crate"
+    command: ["sh", "-c", "cat /tmp/metrics-ddl.sql | crash --hosts cratedb:4200"]
+    volumes:
+      - ./metrics-ddl.sql:/tmp/metrics-ddl.sql
+    depends_on:
+      cratedb:
+        condition: service_healthy
