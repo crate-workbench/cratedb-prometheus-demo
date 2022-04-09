@@ -1,8 +1,10 @@
 version: "3"
 
 services:
+
   cratedb:
     image: "crate"
+    command: ["crate", "-Cdiscovery.type=single-node", "-Ccluster.routing.allocation.disk.threshold_enabled=false"]
     ports:
       - "4200:4200"
       - "5432:5432"
@@ -19,12 +21,14 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+
   cratedb-prometheus-adapter:
     image: "ghcr.io/crate/cratedb-prometheus-adapter"
     volumes:
       - ./cratedb-prometheus-adapter.yml:/etc/cratedb-prometheus-adapter/config.yml
     ports:
       - "9268:9268"
+
   provision_database:
     image: "crate"
     command: ["sh", "-c", "cat /tmp/metrics-ddl.sql | crash --hosts cratedb:4200"]
